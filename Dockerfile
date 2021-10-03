@@ -1,5 +1,5 @@
-FROM alpine:3.13
-RUN apk add autoconf automake autoconf-archive
+FROM docker.io/library/alpine:3.13
+RUN apk add autoconf automake autoconf-archive pkgconfig
 ADD entry.sh /
 
 VOLUME /src
