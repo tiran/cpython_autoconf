@@ -6,12 +6,12 @@ Container image with autotools to regenerate Python's configure script.
 
 ```shell
 $ cd cpython
-$ podman run -v.:/src:Z tiran/cpython_autoconf
+$ podman run -v.:/src:Z quay.io/tiran/cpython_autoconf:latest
 ```
 
 ## Arch, Debian, Gentoo, Ubuntu
 
 ```shell
 $ cd cpython
-$ docker run -v.:/src tiran/cpython_autoconf
+$ docker run -v.:/src quay.io/tiran/cpython_autoconf:latest
 ```
