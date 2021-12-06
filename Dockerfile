@@ -1,4 +1,4 @@
-FROM docker.io/library/alpine:3.13
+FROM docker.io/library/alpine:3.15
 RUN apk add autoconf automake autoconf-archive libtool pkgconfig
 ADD entry.sh /
 
