@@ -15,5 +15,5 @@ fi
 
 echo "Rebuilding configure script"
 cd $SRC
-autoreconf -ivf
+autoreconf -ivf -Werror $@
 echo "Done"
