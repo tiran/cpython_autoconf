@@ -1,0 +1,72 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        required: false
+
+jobs:
+  build-container:
+    name: "Build ${{ matrix.dockerfile }}"
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - dockerfile: "Dockerfile.autoconf269"
+            autoconf: "2.69"
+            tags: |
+              quay.io/tiran/cpython_autoconf:269
+              quay.io/tiran/cpython_autoconf:cp37
+              quay.io/tiran/cpython_autoconf:cp38
+              quay.io/tiran/cpython_autoconf:cp39
+              quay.io/tiran/cpython_autoconf:cp310
+              quay.io/tiran/cpython_autoconf:cp311
+          - dockerfile: "Dockerfile.autoconf271"
+            autoconf: "2.71"
+            tags: |
+              quay.io/tiran/cpython_autoconf:271
+    steps:
+      - name: Set environment
+        run: |
+          set -e
+          echo "IMAGE_CREATED=$(date --rfc-3339=seconds --utc)" >> $GITHUB_ENV
+      - name: "checkout project"
+        uses: "actions/checkout@v2"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: "build container image"
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          tags: ${{ matrix.tags }}
+          push: false
+          load: false
+          labels: |
+            org.opencontainers.image.created=${{ env.IMAGE_CREATED }}
+            org.opencontainers.image.revision=${{ github.sha }}
+      - name: Login to quay.io Container Registry
+        # if: ${{ github.event_name == 'push' }}
+        uses: docker/login-action@v1 
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_LOGIN }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      - name: Upload container image
+        # if: ${{ github.event_name == 'push' }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          tags: ${{ matrix.tags }}
+          push: true
